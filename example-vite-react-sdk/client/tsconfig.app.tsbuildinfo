@@ -1,0 +1,1 @@
+{"root":["./src/app.tsx","./src/dojocontext.tsx","./src/bindings.ts","./src/contracts.gen.ts","./src/main.tsx","./src/types.ts","./src/usedojo.tsx","./src/usemodel.tsx","./src/usesystemcalls.ts","./src/vite-env.d.ts","./components/gameboard.tsx"],"version":"5.6.3"}
