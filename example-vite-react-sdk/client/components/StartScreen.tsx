@@ -114,26 +114,11 @@ const StartScreen: React.FC<StartScreenProps> = ({ onCreateBurner, isDeploying }
                         <p className="text-gray-300 text-lg mb-6">
                             Build, manage, and compete in this multiplayer city building experience
                         </p>
-                        
-                        <button
-                            onClick={handleResetAll}
-                            disabled={isResetting}
-                            className="px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
-                        >
-                            {isResetting ? (
-                                <div className="flex items-center justify-center space-x-2">
-                                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                                    <span>Resetting...</span>
-                                </div>
-                            ) : (
-                                'Reset All Game Data'
-                            )}
-                        </button>
                     </CardHeader>
 
                     <CardContent className="p-8 [background:rgb(31,41,55)]">
                         {screenState === 'initial' && (
-                            <div className="space-y-6">
+                            <div className="flex flex-col space-y-4">
                                 <button
                                     onClick={() => setScreenState('register')}
                                     type="button"
@@ -148,15 +133,26 @@ const StartScreen: React.FC<StartScreenProps> = ({ onCreateBurner, isDeploying }
                                 >
                                     Login to Existing Account
                                 </button>
+                                <button
+                                    onClick={handleResetAll}
+                                    disabled={isResetting}
+                                    className="!text-white w-full py-6 px-8 bg-red-600 hover:bg-red-700 font-medium rounded-lg text-xl shadow-lg border-0 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    {isResetting ? (
+                                        <div className="flex items-center justify-center space-x-2">
+                                            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                            <span>Resetting...</span>
+                                        </div>
+                                    ) : (
+                                        'Reset All Game Data'
+                                    )}
+                                </button>
                             </div>
                         )}
 
                         {screenState === 'login' && (
                             <form onSubmit={handleLogin} className="space-y-6">
                                 <div className="space-y-2">
-                                    <label htmlFor="username" className="block text-white text-lg font-medium">
-                                        Username
-                                    </label>
                                     <input
                                         id="username"
                                         type="text"
@@ -175,9 +171,6 @@ const StartScreen: React.FC<StartScreenProps> = ({ onCreateBurner, isDeploying }
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <label htmlFor="password" className="block text-white text-lg font-medium">
-                                        Password
-                                    </label>
                                     <input
                                         id="password"
                                         type="password"
@@ -196,33 +189,32 @@ const StartScreen: React.FC<StartScreenProps> = ({ onCreateBurner, isDeploying }
                                     />
                                 </div>
                                 {error && <p className="text-red-400 text-md">{error}</p>}
-                                <button
-                                    type="submit"
-                                    className="!text-white w-full py-5 px-8 !bg-blue-600 hover:!bg-blue-700 font-medium rounded-lg text-xl shadow-lg border-0"
-                                >
-                                    Login
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => {
-                                        setScreenState('initial');
-                                        setUsername('');
-                                        setPassword('');
-                                        setError('');
-                                    }}
-                                    className="!text-white w-full py-4 px-8 !bg-slate-600 hover:!bg-slate-700 font-medium rounded-lg text-lg shadow-lg border-0"
-                                >
-                                    Back
-                                </button>
+                                <div className="flex flex-col space-y-4">
+                                    <button
+                                        type="submit"
+                                        className="!text-white w-full py-5 px-8 !bg-blue-600 hover:!bg-blue-700 font-medium rounded-lg text-xl shadow-lg border-0"
+                                    >
+                                        Login
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setScreenState('initial');
+                                            setUsername('');
+                                            setPassword('');
+                                            setError('');
+                                        }}
+                                        className="!text-white w-full py-4 px-8 !bg-slate-600 hover:!bg-slate-700 font-medium rounded-lg text-lg shadow-lg border-0"
+                                    >
+                                        Back
+                                    </button>
+                                </div>
                             </form>
                         )}
 
                         {screenState === 'register' && (
                             <form onSubmit={handleRegister} className="space-y-6">
                                 <div className="space-y-2">
-                                    <label htmlFor="reg-username" className="block text-white text-lg font-medium">
-                                        Choose a username
-                                    </label>
                                     <input
                                         id="reg-username"
                                         type="text"
@@ -242,9 +234,6 @@ const StartScreen: React.FC<StartScreenProps> = ({ onCreateBurner, isDeploying }
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <label htmlFor="reg-password" className="block text-white text-lg font-medium">
-                                        Choose a password
-                                    </label>
                                     <input
                                         id="reg-password"
                                         type="password"
@@ -264,33 +253,35 @@ const StartScreen: React.FC<StartScreenProps> = ({ onCreateBurner, isDeploying }
                                     />
                                 </div>
                                 {error && <p className="text-red-400 text-md">{error}</p>}
-                                <button
-                                    type="submit"
-                                    className={`!text-white w-full py-5 px-8 !bg-blue-600 hover:!bg-blue-700 font-medium rounded-lg text-xl flex items-center justify-center space-x-3 shadow-lg border-0
-                                        ${isDeploying ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                    disabled={isDeploying}
-                                >
-                                    {isDeploying ? (
-                                        <>
-                                            <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                                            <span>Creating Account...</span>
-                                        </>
-                                    ) : (
-                                        <span>Create Account</span>
-                                    )}
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => {
-                                        setScreenState('initial');
-                                        setUsername('');
-                                        setPassword('');
-                                        setError('');
-                                    }}
-                                    className="!text-white w-full py-4 px-8 !bg-slate-600 hover:!bg-slate-700 font-medium rounded-lg text-lg shadow-lg border-0"
-                                >
-                                    Back
-                                </button>
+                                <div className="flex flex-col space-y-4">
+                                    <button
+                                        type="submit"
+                                        className={`!text-white w-full py-5 px-8 !bg-blue-600 hover:!bg-blue-700 font-medium rounded-lg text-xl shadow-lg border-0
+                                            ${isDeploying ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                        disabled={isDeploying}
+                                    >
+                                        {isDeploying ? (
+                                            <div className="flex items-center justify-center space-x-2">
+                                                <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                                <span>Creating Account...</span>
+                                            </div>
+                                        ) : (
+                                            'Create Account'
+                                        )}
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setScreenState('initial');
+                                            setUsername('');
+                                            setPassword('');
+                                            setError('');
+                                        }}
+                                        className="!text-white w-full py-4 px-8 !bg-slate-600 hover:!bg-slate-700 font-medium rounded-lg text-lg shadow-lg border-0"
+                                    >
+                                        Back
+                                    </button>
+                                </div>
                             </form>
                         )}
                     </CardContent>

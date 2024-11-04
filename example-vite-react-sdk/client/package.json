@@ -10,12 +10,15 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@cartridge/connector": "0.3.46",
+    "@cartridge/controller": "0.3.46",
     "@dojoengine/core": "1.0.0-alpha.27",
     "@dojoengine/create-burner": "1.0.0-alpha.27",
     "@dojoengine/sdk": "1.0.0-alpha.27",
     "@dojoengine/torii-client": "1.0.0-alpha.27",
     "@dojoengine/torii-wasm": "1.0.0-alpha.27",
     "@dojoengine/utils": "1.0.0-alpha.27",
+    "@starknet-react/core": "2.1.5",
     "@types/uuid": "^10.0.0",
     "immer": "^10.1.1",
     "react": "^18.3.1",

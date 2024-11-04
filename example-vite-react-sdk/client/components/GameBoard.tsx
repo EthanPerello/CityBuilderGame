@@ -1,27 +1,35 @@
 import React, { useState, useEffect, KeyboardEvent } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { GameState } from '../src/types';
+import { GameState, Player } from '../src/types';
+import Leaderboard from './Leaderboard';
 
 const TILE_COST = 100;
 const INITIAL_MONEY = 1000;
 const GRID_SIZE = 20;
 const TILE_SIZE = 100;
 const GAME_STATE_KEY = 'gameState';
+const PLAYERS_KEY = 'players';
 
 const GameBoard: React.FC = () => {
   const { currentPlayer } = useAuth();
   const [cameraPosition, setCameraPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [zoom, setZoom] = useState<number>(1);
   const [selectedTile, setSelectedTile] = useState<{ x: number; y: number } | null>(null);
+  const [players, setPlayers] = useState<{ [address: string]: Player }>(() => {
+    const savedPlayers = localStorage.getItem(PLAYERS_KEY);
+    if (savedPlayers) {
+      return JSON.parse(savedPlayers);
+    }
+    return currentPlayer ? { [currentPlayer.address]: currentPlayer } : {};
+  });
+
   const [gameState, setGameState] = useState<GameState>(() => {
-    // Try to load existing game state from localStorage
     const savedState = localStorage.getItem(GAME_STATE_KEY);
     if (savedState) {
       const parsed = JSON.parse(savedState) as GameState;
       return parsed;
     }
 
-    // Initialize new game state if nothing is saved
     return {
       playerMoney: { [currentPlayer?.address || '']: INITIAL_MONEY },
       tiles: Array(GRID_SIZE).fill(null).map((_, i) => 
@@ -35,25 +43,35 @@ const GameBoard: React.FC = () => {
     };
   });
 
-  // Save game state whenever it changes
   useEffect(() => {
     localStorage.setItem(GAME_STATE_KEY, JSON.stringify(gameState));
   }, [gameState]);
 
-  // Initialize new player with money if they don't exist in game state
   useEffect(() => {
-    if (currentPlayer && !gameState.playerMoney[currentPlayer.address]) {
-      setGameState(prevState => ({
-        ...prevState,
-        playerMoney: {
-          ...prevState.playerMoney,
-          [currentPlayer.address]: INITIAL_MONEY
-        }
-      }));
-    }
-  }, [currentPlayer, gameState.playerMoney]);
+    localStorage.setItem(PLAYERS_KEY, JSON.stringify(players));
+  }, [players]);
 
-  // Camera controls
+  useEffect(() => {
+    if (currentPlayer) {
+      // Update players list
+      setPlayers(prev => ({
+        ...prev,
+        [currentPlayer.address]: currentPlayer
+      }));
+
+      // Initialize money if needed
+      if (!gameState.playerMoney[currentPlayer.address]) {
+        setGameState(prevState => ({
+          ...prevState,
+          playerMoney: {
+            ...prevState.playerMoney,
+            [currentPlayer.address]: INITIAL_MONEY
+          }
+        }));
+      }
+    }
+  }, [currentPlayer]);
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       const moveSpeed = 50;
@@ -90,7 +108,6 @@ const GameBoard: React.FC = () => {
     
     const tile = gameState.tiles[x][y];
     if (tile.owner && tile.owner !== currentPlayer.address) {
-      // Can't select tiles owned by other players
       setSelectedTile(null);
       return;
     }
@@ -103,7 +120,13 @@ const GameBoard: React.FC = () => {
     
     const { x, y } = selectedTile;
     const currentMoney = gameState.playerMoney[currentPlayer.address] || 0;
-    
+    const tile = gameState.tiles[x][y];
+
+    // Check if the tile is already owned by the player
+    if (tile.owner === currentPlayer.address) {
+      return; // Exit if the tile is already owned by the player
+    }
+
     if (currentMoney >= TILE_COST) {
       setGameState(prevState => {
         const newTiles = prevState.tiles.map((row, i) => 
@@ -236,7 +259,7 @@ const GameBoard: React.FC = () => {
         Money: ${currentMoney}
       </div>
 
-      {/* Debug Info */}
+      {/* Leaderboard */}
       <div style={{
         position: 'absolute',
         top: '20px',
@@ -247,8 +270,13 @@ const GameBoard: React.FC = () => {
         color: 'white',
         zIndex: 100
       }}>
-        Camera: ({cameraPosition.x}, {cameraPosition.y})<br />
-        Zoom: {zoom.toFixed(2)}
+        {currentPlayer && (
+        <Leaderboard 
+          playerMoney={gameState.playerMoney}
+          currentPlayerAddress={currentPlayer.address}
+          players={players}
+        />
+      )}
       </div>
 
       {/* Buy Tile Button */}
@@ -264,17 +292,16 @@ const GameBoard: React.FC = () => {
         }}>
           <button
             onClick={handleBuyTile}
-            disabled={currentMoney < TILE_COST}
+            disabled={currentMoney < TILE_COST || gameState.tiles[selectedTile.x][selectedTile.y].owner === currentPlayer.address}
             style={{
               padding: '8px 16px',
-              backgroundColor: currentMoney >= TILE_COST ? '#48bb78' : '#4a5568',
+              backgroundColor: currentMoney >= TILE_COST && gameState.tiles[selectedTile.x][selectedTile.y].owner !== currentPlayer.address ? '#48bb78' : '#4a5568',
               color: 'white',
               borderRadius: '6px',
-              cursor: currentMoney >= TILE_COST ? 'pointer' : 'not-allowed',
-              opacity: currentMoney >= TILE_COST ? 1 : 0.7
+              cursor: currentMoney >= TILE_COST && gameState.tiles[selectedTile.x][selectedTile.y].owner !== currentPlayer.address ? 'pointer' : 'not-allowed'
             }}
           >
-            Buy Tile (${TILE_COST})
+            Buy Tile - ${TILE_COST}
           </button>
         </div>
       )}
